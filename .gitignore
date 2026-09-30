@@ -1,6 +1,12 @@
 # Arquivo-fonte da foto do hero mobile (o site usa hero-mobile.webp)
 assets/img/hero-mobile-v2.png
 
+# Acessos e senhas — nunca versionar
+_acesso/
+_acesso*
+*.env
+.env*
+
 # Sistema
 Thumbs.db
 desktop.ini
