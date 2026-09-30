@@ -86,6 +86,7 @@ function renderImovel(i) {
           <p class="pd-card__price">${preco}</p>
           ${i.area ? `<p class="pd-card__sub">${i.area >= 10000 && !i.areaMax
             ? `${formatarArea(i.area)} · ${num.format(i.area)} m²`
+            : i.areaAPartir ? `Lotes a partir de ${formatarArea(i.area)}`
             : `${i.areaMax ? "Lotes de " : ""}${areaDoImovel(i)}`}</p>` : ""}
           <a class="btn-zap pd-card__cta" href="${zap}" target="_blank" rel="noopener">
             <svg><use href="#i-whatsapp"/></svg>Tenho interesse

@@ -14,6 +14,7 @@ function formatarArea(m2) {
 // Área do imóvel, com faixa quando houver areaMax (ex.: "300 a 500 m²")
 function areaDoImovel(i) {
   if (!i.area) return "";
+  if (i.areaAPartir) return `A partir de ${formatarArea(i.area)}`;
   if (!i.areaMax) return formatarArea(i.area);
   const [ini, fim] = [formatarArea(i.area), formatarArea(i.areaMax)];
   const unidade = fim.split(" ").pop();

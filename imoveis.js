@@ -21,6 +21,7 @@
    precoAPartir  true = mostra "A partir de R$ ..." (lotes, lançamentos)
    area       em m² (210000 = 21 ha; acima de 10.000 m² aparece em hectares)
    areaMax    opcional, para faixa de metragem (area: 300, areaMax: 500 = "300 a 500 m²")
+   areaAPartir   true = mostra "A partir de 400 m²" (lotes com tamanhos variados)
    quartos, banheiros, vagas   opcionais — deixe null se não se aplica
    destaques  lista curta de diferenciais
    descricao  texto do anúncio (pode ter vários parágrafos com \n\n)
@@ -40,8 +41,8 @@ window.IMOVEIS = [
     bairro: "",
     preco: 247000,
     precoAPartir: true,
-    area: 300,
-    areaMax: 500,
+    area: 400,
+    areaAPartir: true,
     quartos: null,
     banheiros: null,
     vagas: null,
@@ -51,7 +52,7 @@ window.IMOVEIS = [
       "Água e esgoto", "Rede elétrica", "Obras avançadas",
     ],
     descricao:
-      "Lotes de 300 a 500 m² em condomínio fechado em Ouro Branco — MG, com infraestrutura completa: ruas pavimentadas, piso intertravado, rede de água e esgoto e rede elétrica.\n\n" +
+      "Lotes a partir de 400 m² em condomínio fechado em Ouro Branco — MG, com infraestrutura completa: ruas pavimentadas, piso intertravado, rede de água e esgoto e rede elétrica.\n\n" +
       "Área de lazer com piscina, quadras, academia e pista de caminhada. Obras em estágio avançado.\n\n" +
       "Uma ótima escolha tanto para construir a casa da família quanto para investir.",
     fotos: [
