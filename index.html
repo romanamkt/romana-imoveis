@@ -73,7 +73,15 @@
 
         <label class="search__field">
           <svg class="search__icon"><use href="#i-search"/></svg>
-          <input type="search" id="q" placeholder="Onde você quer morar?" autocomplete="off" aria-label="Buscar por cidade, bairro ou endereço" />
+          <select id="q" aria-label="O que você quer ver?">
+            <option value="">O que você quer ver?</option>
+            <option value="casa">Casas</option>
+            <option value="apartamento">Apartamentos</option>
+            <option value="terreno">Lotes e terrenos</option>
+            <option value="rural">Sítios e fazendas</option>
+            <option value="comercial">Imóveis comerciais</option>
+          </select>
+          <svg class="search__caret"><use href="#i-chevron"/></svg>
           <button type="submit" class="search__go" aria-label="Buscar">
             <svg><use href="#i-arrow"/></svg>
           </button>

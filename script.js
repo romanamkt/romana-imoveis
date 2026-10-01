@@ -1,15 +1,10 @@
 // Romana Imóveis — página inicial
 // Os imóveis vêm de imoveis.js; formatação e WhatsApp de util.js.
 
-const PLACEHOLDERS = {
-  comprar: "Onde você quer morar?",
-  investir: "Onde você quer investir?",
-};
-
 const $cards = document.getElementById("cards");
-const $q = document.getElementById("q");
+const $q = document.getElementById("q"); // lista "O que você quer ver?"
 let modo = "comprar";
-let categoria = null; // filtro vindo das pílulas (ex.: "rural")
+let categoria = null; // filtro da lista ou das pílulas (ex.: "rural")
 
 // Favoritos persistidos no navegador
 function lerFavoritos() {
@@ -18,10 +13,6 @@ function lerFavoritos() {
 const favoritos = lerFavoritos();
 function salvarFavoritos() {
   try { localStorage.setItem("ri-favs", JSON.stringify([...favoritos])); } catch {}
-}
-
-function normalizar(s) {
-  return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
 function cardHTML(i) {
@@ -49,11 +40,8 @@ function cardHTML(i) {
 }
 
 function render() {
-  const termo = normalizar($q.value.trim());
   const lista = IMOVEIS.filter(i =>
-    temModo(i, modo) &&
-    (!categoria || i.categoria === categoria) &&
-    (!termo || normalizar(`${i.titulo} ${i.tipo} ${i.bairro} ${i.cidade} ${(i.destaques || []).join(" ")}`).includes(termo))
+    temModo(i, modo) && (!categoria || i.categoria === categoria)
   );
 
   if (lista.length) {
@@ -64,17 +52,16 @@ function render() {
   }
 
   // Nenhum resultado: convida a falar com a Romana
-  const zap = linkWhatsApp(termo
-    ? `Olá, Romana! Procuro um imóvel em ${$q.value.trim()}.`
+  const nome = categoria ? $q.selectedOptions[0].text.toLowerCase() : "";
+  const zap = linkWhatsApp(nome
+    ? `Olá, Romana! Procuro ${nome}.`
     : "Olá, Romana! Gostaria de saber sobre imóveis disponíveis.");
   $cards.innerHTML = `
     <div class="cards__empty">
-      <p>${termo ? "Nenhum imóvel encontrado para “<span></span>”." : "Em breve novos imóveis por aqui."}
+      <p>${nome ? `No momento não há ${nome} disponíveis por aqui.` : "Em breve novos imóveis por aqui."}
       Conte para a Romana o que você procura.</p>
       <a class="btn-zap" href="${zap}" target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg>Falar com Romana</a>
     </div>`;
-  const alvo = $cards.querySelector("span");
-  if (alvo) alvo.textContent = $q.value.trim();
   atualizarCarrossel(document.getElementById("destaques"));
 }
 
@@ -133,18 +120,23 @@ function mudarModo(novo) {
     b.classList.toggle("is-active", ativo);
     b.setAttribute("aria-selected", ativo);
   });
-  $q.placeholder = PLACEHOLDERS[modo];
 }
 document.querySelectorAll(".segmented__opt").forEach(btn => {
   btn.addEventListener("click", () => { mudarModo(btn.dataset.mode); render(); });
 });
 
-// Busca
-document.querySelector(".search").addEventListener("submit", () => {
-  render();
+// Busca: escolher um tipo na lista já mostra os imóveis
+function irParaResultados() {
   document.getElementById("destaques").scrollIntoView({ behavior: "smooth" });
+}
+document.querySelector(".search").addEventListener("submit", () => { render(); irParaResultados(); });
+$q.addEventListener("change", () => {
+  categoria = $q.value || null;
+  document.querySelectorAll(".chip").forEach(c =>
+    c.classList.toggle("is-active", !!categoria && c.dataset.cat === categoria && c.dataset.mode === modo));
+  render();
+  if (categoria) irParaResultados();
 });
-$q.addEventListener("input", () => { if (!$q.value) render(); });
 
 // Pílulas de busca popular: definem modo e/ou categoria (clicar de novo desmarca)
 document.querySelectorAll(".chip").forEach(chip => {
@@ -152,8 +144,8 @@ document.querySelectorAll(".chip").forEach(chip => {
     const cat = chip.dataset.cat || null;
     const jaAtivo = chip.classList.contains("is-active");
     document.querySelectorAll(".chip").forEach(c => c.classList.remove("is-active"));
-    $q.value = "";
     categoria = jaAtivo ? null : cat;
+    $q.value = categoria || "";
     if (!jaAtivo) {
       // a mesma pílula existe no hero e abaixo dele (mobile): marca as duas
       document.querySelectorAll(`.chip[data-key="${chip.dataset.key}"]`)
