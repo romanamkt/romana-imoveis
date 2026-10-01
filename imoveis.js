@@ -32,6 +32,30 @@
 
 window.IMOVEIS = [
   {
+    id: "lote-entre-rios",
+    modo: ["comprar", "investir"],
+    categoria: "terreno",
+    tipo: "Lote",
+    titulo: "Lote plano no Condomínio Liberdade",
+    cidade: "Entre Rios de Minas — MG",
+    bairro: "Condomínio Liberdade",
+    preco: 150000,
+    area: 306,
+    quartos: null,
+    banheiros: null,
+    vagas: null,
+    destaques: ["Lote plano", "Murado em duas laterais", "Bem localizado"],
+    descricao:
+      "Excelente lote plano de 306 m², bem localizado no Condomínio Liberdade, em Entre Rios de Minas — MG.\n\n" +
+      "Já é murado em duas laterais, pronto para você construir a casa da família ou investir.",
+    fotos: [
+      "assets/imoveis/lote-entre-rios/01.webp", // capa: lote e muro lateral
+      "assets/imoveis/lote-entre-rios/02.webp", // vista do fundo do lote
+    ],
+    tag: "Lote plano",
+    destaque: true,
+  },
+  {
     id: "casa-siderurgia",
     modo: "comprar",
     categoria: "casa",
