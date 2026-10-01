@@ -238,25 +238,8 @@ p { margin: 0; }
   font-size: 16px;
   color: var(--ink);
 }
-/* Lista "O que você quer ver?" (no celular abre o seletor nativo) */
-.search__field select {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  border: 0;
-  outline: none;
-  background: transparent;
-  font: inherit;
-  font-size: 16px;
-  color: var(--ink);
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-}
-.search__field select:has(option[value=""]:checked) { color: var(--muted); }
-.search__field select option { color: var(--ink); }
-.search__field:focus-within { outline: 2px solid #C96B2C; outline-offset: 2px; }
-.search__caret { width: 18px; height: 18px; flex: none; pointer-events: none; margin-right: 4px; }
+.search__field input::placeholder { color: var(--muted); }
+.search__field input::-webkit-search-cancel-button { display: none; }
 .search__go {
   width: 46px; height: 46px;
   display: grid;

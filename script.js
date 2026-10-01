@@ -1,10 +1,31 @@
 // Romana Imóveis — página inicial
 // Os imóveis vêm de imoveis.js; formatação e WhatsApp de util.js.
 
+// Texto de fundo da busca: vai alternando exemplos do que dá para procurar
+const EXEMPLOS = [
+  "O que você quer ver?",
+  "Casa em Ouro Branco",
+  "Lote em condomínio",
+  "Sítio ou fazenda",
+  "Apartamento",
+  "Terreno",
+];
+
+// Palavras que a pessoa pode digitar para cada categoria
+const SINONIMOS = {
+  casa: "casa residencia",
+  apartamento: "apartamento apto ap",
+  terreno: "terreno lote loteamento",
+  rural: "sitio fazenda chacara rural roca",
+  comercial: "comercial loja sala galpao ponto",
+};
+// Palavras ignoradas na busca ("casa em Ouro Branco" = "casa Ouro Branco")
+const IGNORAR = new Set(["em", "no", "na", "nos", "nas", "de", "do", "da", "dos", "das", "e", "ou", "com", "para", "a", "o"]);
+
 const $cards = document.getElementById("cards");
-const $q = document.getElementById("q"); // lista "O que você quer ver?"
+const $q = document.getElementById("q");
 let modo = "comprar";
-let categoria = null; // filtro da lista ou das pílulas (ex.: "rural")
+let categoria = null; // filtro vindo das pílulas (ex.: "rural")
 
 // Favoritos persistidos no navegador
 function lerFavoritos() {
@@ -13,6 +34,10 @@ function lerFavoritos() {
 const favoritos = lerFavoritos();
 function salvarFavoritos() {
   try { localStorage.setItem("ri-favs", JSON.stringify([...favoritos])); } catch {}
+}
+
+function normalizar(s) {
+  return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
 function cardHTML(i) {
@@ -39,9 +64,33 @@ function cardHTML(i) {
     </article>`;
 }
 
+// Busca livre: cada palavra digitada precisa aparecer no imóvel, em qualquer
+// ordem (ex.: "casa siderurgia", "sítio em Ouro Branco"); aceita plural
+// Palavras de tipo ("casa", "lote", "sítio"...) filtram pela categoria, para
+// "lote" não achar uma casa que tem "lote de 300 m²" na descrição
+const CATEGORIA_DA_PALAVRA = {};
+for (const [cat, palavras] of Object.entries(SINONIMOS)) {
+  for (const p of palavras.split(" ")) CATEGORIA_DA_PALAVRA[p] = cat;
+}
+
+function combina(i, termo) {
+  const texto = normalizar(`${i.titulo} ${i.tipo} ${i.bairro} ${i.cidade} ${(i.destaques || []).join(" ")}`);
+  return termo.split(/\s+/)
+    .filter(p => p && !IGNORAR.has(p))
+    .every(p => {
+      const singular = p.length > 3 && p.endsWith("s") ? p.slice(0, -1) : p;
+      const cat = CATEGORIA_DA_PALAVRA[p] || CATEGORIA_DA_PALAVRA[singular];
+      if (cat) return i.categoria === cat;
+      return texto.includes(p) || texto.includes(singular);
+    });
+}
+
 function render() {
+  const termo = normalizar($q.value.trim());
   const lista = IMOVEIS.filter(i =>
-    temModo(i, modo) && (!categoria || i.categoria === categoria)
+    temModo(i, modo) &&
+    (!categoria || i.categoria === categoria) &&
+    (!termo || combina(i, termo))
   );
 
   if (lista.length) {
@@ -52,16 +101,17 @@ function render() {
   }
 
   // Nenhum resultado: convida a falar com a Romana
-  const nome = categoria ? $q.selectedOptions[0].text.toLowerCase() : "";
-  const zap = linkWhatsApp(nome
-    ? `Olá, Romana! Procuro ${nome}.`
+  const zap = linkWhatsApp(termo
+    ? `Olá, Romana! Procuro: ${$q.value.trim()}.`
     : "Olá, Romana! Gostaria de saber sobre imóveis disponíveis.");
   $cards.innerHTML = `
     <div class="cards__empty">
-      <p>${nome ? `No momento não há ${nome} disponíveis por aqui.` : "Em breve novos imóveis por aqui."}
+      <p>${termo ? "Nenhum imóvel encontrado para “<span></span>”." : "Em breve novos imóveis por aqui."}
       Conte para a Romana o que você procura.</p>
       <a class="btn-zap" href="${zap}" target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg>Falar com Romana</a>
     </div>`;
+  const alvo = $cards.querySelector("span");
+  if (alvo) alvo.textContent = $q.value.trim();
   atualizarCarrossel(document.getElementById("destaques"));
 }
 
@@ -125,18 +175,20 @@ document.querySelectorAll(".segmented__opt").forEach(btn => {
   btn.addEventListener("click", () => { mudarModo(btn.dataset.mode); render(); });
 });
 
-// Busca: escolher um tipo na lista já mostra os imóveis
-function irParaResultados() {
-  document.getElementById("destaques").scrollIntoView({ behavior: "smooth" });
-}
-document.querySelector(".search").addEventListener("submit", () => { render(); irParaResultados(); });
-$q.addEventListener("change", () => {
-  categoria = $q.value || null;
-  document.querySelectorAll(".chip").forEach(c =>
-    c.classList.toggle("is-active", !!categoria && c.dataset.cat === categoria && c.dataset.mode === modo));
+// Busca
+document.querySelector(".search").addEventListener("submit", () => {
   render();
-  if (categoria) irParaResultados();
+  document.getElementById("destaques").scrollIntoView({ behavior: "smooth" });
 });
+$q.addEventListener("input", () => { if (!$q.value) render(); });
+
+// Alterna o texto de fundo a cada 3 s (para quando a pessoa clica na busca)
+let exemplo = 0;
+setInterval(() => {
+  if (document.activeElement === $q || $q.value) return;
+  exemplo = (exemplo + 1) % EXEMPLOS.length;
+  $q.placeholder = EXEMPLOS[exemplo];
+}, 3000);
 
 // Pílulas de busca popular: definem modo e/ou categoria (clicar de novo desmarca)
 document.querySelectorAll(".chip").forEach(chip => {
@@ -144,8 +196,8 @@ document.querySelectorAll(".chip").forEach(chip => {
     const cat = chip.dataset.cat || null;
     const jaAtivo = chip.classList.contains("is-active");
     document.querySelectorAll(".chip").forEach(c => c.classList.remove("is-active"));
+    $q.value = "";
     categoria = jaAtivo ? null : cat;
-    $q.value = categoria || "";
     if (!jaAtivo) {
       // a mesma pílula existe no hero e abaixo dele (mobile): marca as duas
       document.querySelectorAll(`.chip[data-key="${chip.dataset.key}"]`)
