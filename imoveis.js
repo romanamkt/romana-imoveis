@@ -32,6 +32,40 @@
 
 window.IMOVEIS = [
   {
+    id: "casa-siderurgia",
+    modo: "comprar",
+    categoria: "casa",
+    tipo: "Casa",
+    titulo: "Casa com vista para a serra",
+    cidade: "Ouro Branco — MG",
+    bairro: "Siderurgia",
+    preco: 577000,
+    area: 300,
+    quartos: 3,
+    banheiros: 1,
+    vagas: null,
+    destaques: [
+      "Lote de 300 m²", "90 m² construídos", "Garagem coberta",
+      "Área com churrasqueira", "Vista para a serra", "Aceita financiamento",
+    ],
+    descricao:
+      "Casa de 3 quartos no bairro Siderurgia, em Ouro Branco — MG, em ótima localização. São 90 m² de área construída em um lote de 300 m².\n\n" +
+      "Tem garagem coberta, área com churrasqueira nos fundos, piso porcelanato nos ambientes internos e uma bela vista para a serra.\n\n" +
+      "Pode ser financiada.",
+    fotos: [
+      "assets/imoveis/casa-siderurgia/01.webp", // capa: casa e garagem
+      "assets/imoveis/casa-siderurgia/02.webp", // fachada
+      "assets/imoveis/casa-siderurgia/03.webp", // portão da rua
+      "assets/imoveis/casa-siderurgia/04.webp", // sala
+      "assets/imoveis/casa-siderurgia/05.webp", // quarto com vista
+      "assets/imoveis/casa-siderurgia/06.webp", // banheiro
+      "assets/imoveis/casa-siderurgia/07.webp", // área com churrasqueira
+      "assets/imoveis/casa-siderurgia/08.webp", // vista para a serra
+    ],
+    tag: "Aceita financiamento",
+    destaque: true,
+  },
+  {
     id: "residencial-lautos",
     modo: ["comprar", "investir"],
     categoria: "terreno",

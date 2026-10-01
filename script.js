@@ -53,7 +53,7 @@ function render() {
   const lista = IMOVEIS.filter(i =>
     temModo(i, modo) &&
     (!categoria || i.categoria === categoria) &&
-    (!termo || normalizar(`${i.titulo} ${i.tipo} ${i.bairro} ${i.cidade}`).includes(termo))
+    (!termo || normalizar(`${i.titulo} ${i.tipo} ${i.bairro} ${i.cidade} ${(i.destaques || []).join(" ")}`).includes(termo))
   );
 
   if (lista.length) {
