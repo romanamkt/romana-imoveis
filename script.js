@@ -58,6 +58,8 @@ function render() {
 
   if (lista.length) {
     $cards.innerHTML = lista.map(cardHTML).join("");
+    $cards.scrollLeft = 0;
+    atualizarCarrossel(document.getElementById("destaques"));
     return;
   }
 
@@ -73,7 +75,55 @@ function render() {
     </div>`;
   const alvo = $cards.querySelector("span");
   if (alvo) alvo.textContent = $q.value.trim();
+  atualizarCarrossel(document.getElementById("destaques"));
 }
+
+// Carrosséis por categoria (Casas, Lotes, Sítios): mostram todos os imóveis
+// da categoria e só aparecem quando há algum cadastrado
+function renderCategorias() {
+  document.querySelectorAll(".highlights[data-cat]").forEach(secao => {
+    const lista = IMOVEIS.filter(i => i.categoria === secao.dataset.cat);
+    secao.hidden = !lista.length;
+    secao.querySelector(".cards").innerHTML = lista.map(cardHTML).join("");
+    atualizarCarrossel(secao);
+  });
+}
+
+// Setas (computador) e "Ver todos": as setas ficam apagadas no começo/fim,
+// e somem junto com o "Ver todos" quando todos os cards já cabem na tela
+function atualizarCarrossel(secao) {
+  const cards = secao.querySelector(".cards");
+  const aberto = cards.classList.contains("cards--all");
+  const sobra = cards.scrollWidth - cards.clientWidth > 4;
+  const [ant, prox] = secao.querySelectorAll(".nav-btn");
+  ant.hidden = prox.hidden = aberto || !sobra;
+  ant.disabled = cards.scrollLeft < 4;
+  prox.disabled = cards.scrollLeft + cards.clientWidth >= cards.scrollWidth - 4;
+  secao.querySelector(".link-more").hidden = !aberto && !sobra;
+}
+
+document.querySelectorAll(".highlights").forEach(secao => {
+  const cards = secao.querySelector(".cards");
+  const verTodos = secao.querySelector(".link-more");
+  verTodos.addEventListener("click", () => {
+    const abrir = !cards.classList.contains("cards--all");
+    cards.classList.toggle("cards--all", abrir);
+    cards.scrollLeft = 0;
+    verTodos.setAttribute("aria-expanded", abrir);
+    verTodos.firstChild.textContent = abrir ? "Ver menos " : "Ver todos ";
+    if (!abrir) secao.scrollIntoView({ behavior: "smooth" });
+    atualizarCarrossel(secao);
+  });
+  secao.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      cards.scrollBy({ left: btn.dataset.dir * cards.clientWidth * 0.9, behavior: "smooth" });
+    });
+  });
+  cards.addEventListener("scroll", () => atualizarCarrossel(secao), { passive: true });
+});
+window.addEventListener("resize", () => {
+  document.querySelectorAll(".highlights").forEach(atualizarCarrossel);
+});
 
 // Seletor Comprar / Investir
 function mudarModo(novo) {
@@ -114,14 +164,16 @@ document.querySelectorAll(".chip").forEach(chip => {
   });
 });
 
-// Favoritos
-$cards.addEventListener("click", e => {
+// Favoritos (o mesmo imóvel pode estar em mais de um carrossel: marca todos)
+document.querySelector("main").addEventListener("click", e => {
   const btn = e.target.closest(".fav");
   if (!btn) return;
   const id = btn.dataset.id;
   favoritos.has(id) ? favoritos.delete(id) : favoritos.add(id);
-  btn.classList.toggle("is-on");
-  btn.setAttribute("aria-pressed", favoritos.has(id));
+  document.querySelectorAll(`.fav[data-id="${CSS.escape(id)}"]`).forEach(b => {
+    b.classList.toggle("is-on", favoritos.has(id));
+    b.setAttribute("aria-pressed", favoritos.has(id));
+  });
   salvarFavoritos();
 });
 
@@ -142,3 +194,4 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") abrirMenu(fa
 document.getElementById("year").textContent = new Date().getFullYear();
 
 render();
+renderCategorias();

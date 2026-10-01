@@ -423,6 +423,29 @@ p { margin: 0; }
 }
 .link-more svg { width: 16px; height: 16px; transition: transform .2s var(--ease); }
 .link-more:hover svg { transform: translateX(3px); }
+.link-more[hidden] { display: none; }
+.link-more[aria-expanded="true"] svg { transform: rotate(-90deg); }
+button.link-more { background: none; border: 0; padding: 0; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+.section-head__actions { display: flex; align-items: center; gap: 8px; }
+/* Setas do carrossel: só no computador (no celular, arrasta com o dedo) */
+.nav-btn {
+  display: none;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink-2);
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: opacity .2s, box-shadow .2s;
+}
+.nav-btn svg { width: 16px; height: 16px; }
+.nav-btn[data-dir="-1"] svg { transform: rotate(180deg); }
+.nav-btn:hover:not(:disabled) { box-shadow: var(--shadow-sm); }
+.nav-btn:disabled { opacity: .35; cursor: default; }
+.nav-btn:last-of-type { margin-right: 8px; }
+.highlights + .highlights { padding-top: 36px; }
 
 /* Mobile: carrossel horizontal */
 .cards {
@@ -434,9 +457,17 @@ p { margin: 0; }
   scroll-snap-type: x mandatory;
   scroll-padding-inline: var(--gutter);
   scrollbar-width: none;
+  padding-top: 4px;
   padding-bottom: 8px;
 }
 .cards::-webkit-scrollbar { display: none; }
+/* "Ver todos": o carrossel vira lista completa */
+.cards.cards--all {
+  grid-auto-flow: row;
+  grid-template-columns: 1fr;
+  grid-auto-columns: auto;
+  overflow: visible;
+}
 
 .card {
   position: relative;
@@ -601,6 +632,7 @@ p { margin: 0; }
 @media (min-width: 640px) {
   :root { --gutter: 32px; }
   .cards { grid-auto-columns: calc(50% - 7px); }
+  .cards.cards--all { grid-template-columns: repeat(2, 1fr); }
   .cta__box { padding: 44px; }
 }
 
@@ -654,13 +686,14 @@ p { margin: 0; }
 
 
   .highlights { padding-top: 44px; }
+  .highlights + .highlights { padding-top: 56px; }
   .cards {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-columns: auto;
-    overflow: visible;
+    grid-auto-columns: calc((100% - 40px) / 3);
     gap: 20px;
   }
+  .cards.cards--all { grid-template-columns: repeat(3, 1fr); }
+  .nav-btn { display: inline-flex; }
+  .nav-btn[hidden] { display: none; }
   .cta { padding-top: 88px; }
   .cta__box { flex-direction: row; align-items: center; justify-content: space-between; padding: 56px; }
   .btn-light { align-self: center; }
